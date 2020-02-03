@@ -2,6 +2,7 @@ import * as express from 'express';
 import * as http from 'http'
 import * as WebSocket from 'ws'
 import { AddressInfo } from 'net';
+import { generateMessagesFromFixture } from './fakeTrip';
 
 const app = express();
 
@@ -15,9 +16,16 @@ let idCounter = 0;
 wss.on('connection', (ws: WebSocket) => {
     const connectionId = idCounter++;
 
+    const trip = generateMessagesFromFixture('example-track-1');
+
     const intervalId = setInterval(() => {
         console.log('sending message');
-        ws.send(`Latest date: ${new Date()}`)
+        let result = trip.next();
+        console.log(result);
+        result.value && ws.send(result.value)
+        if (result.done) {
+            ws.close();
+        }
     }, 5000)
 
     ws.on('close', () => {
