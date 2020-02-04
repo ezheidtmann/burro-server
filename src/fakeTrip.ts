@@ -3,10 +3,8 @@ import * as fs from 'fs';
 export function* generateMessagesFromFixture(fixturename: string): Iterator<string> {
     const data = fs.readFileSync(`./fixtures/${fixturename}.geojson`);
     const gj = JSON.parse(data.toString());
-    console.log(gj);
     for (const feature of gjFeatures(gj)) {
         const geometry = feature['geometry'];
-        console.log(geometry);
         if (geometry['type'] == 'LineString') {
             for (const point of geometry['coordinates']) {
                 yield JSON.stringify({

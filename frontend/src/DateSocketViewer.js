@@ -12,25 +12,30 @@ export default class DateSocketViewer extends React.Component {
         super(props);
         this.state = {
             'connected': false,
-            'message': '',
+            'location': null,
+            'center': [-122.5, 45.5],
         };
     }
 
     onMessage(message) {
-        this.setState({ message: message.data })
+        console.log('got message', message.data);
+        this.setState({ location: JSON.parse(message.data) })
     }
 
     render() {
-        const { connected, message } = this.state;
+        const { connected, location, center } = this.state;
+
         return (
             <span>
-                {connected ? 'Connected' : 'Not Connected'} -- {message}
+                {connected ? 'Connected' : 'Not Connected'}
                 <WebSocketWrapper url="ws://localhost:8899"
                     onOpen={() => this.setState({ connected: true })}
-                    onClose={() => this.setState({ connected: false, message: null })}
+                    onClose={() => this.setState({ connected: false, location: null })}
                     onMessage={m => this.onMessage(m)} />
-                <Map style="mapbox://styles/mapbox/streets-v9" containerStyle={{ height: '100vh', width: '100vw' }} center={[-122.5, 45.5]}>
-                    <Marker coordinates={[-122.5, 45.5]} anchor="bottom"><img width="100px" height="100px" src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Flag_of_New_Mexico.svg"></img></Marker>
+                <Map style="mapbox://styles/mapbox/streets-v9" containerStyle={{ height: '100vh', width: '100vw' }} center={center}>
+                    {location &&
+                        <Marker coordinates={[location.longitude, location.latitude]} anchor="bottom"><img width="100px" height="100px" src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Flag_of_New_Mexico.svg"></img></Marker>
+                    }
                 </Map>
             </span>
         )
